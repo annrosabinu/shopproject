@@ -1,0 +1,35 @@
+{% block content %}
+  <h2>Your Cart</h2>
+
+  {% if cart_items %}
+    <ul>
+      {% for item in cart_items %}
+        <li>
+          <h4>{{ item.product.name }}</h4>
+          <p>Price: ${{ item.product.price }}</p>
+          <p>Quantity: {{ item.quantity }}</p>
+          <p>Total: ${{ item.product.price * item.quantity }}</p>
+
+          <!-- Update Quantity Form -->
+          <form method="POST" action="{% url 'update_cart' item.product.id %}">
+            {% csrf_token %}
+            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" required>
+            <button type="submit">Update Quantity</button>
+          </form>
+
+          <!-- Remove Item Form -->
+          <form method="POST" action="{% url 'remove_from_cart' item.product.id %}">
+            {% csrf_token %}
+            <button type="submit">Remove from Cart</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <h3>Total Price: ${{ total_price }}</h3>
+  {% else %}
+    <p>{{ message }}</p>
+  {% endif %}
+
+  <a href="{% url 'home' %}">Continue Shopping</a>
+{% endblock %}

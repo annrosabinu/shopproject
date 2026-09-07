@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1em 0;
+            text-align: center;
+        }
+
+        nav {
+            width: 180px; /* Reduced width */
+            background-color: #333;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            padding-left: 20px;
+        }
+
+        nav h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: left;
+            width: 100%;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        nav ul li {
+            margin: 10px 0;
+            width: 100%;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            padding: 10px;
+            display: block;
+        }
+
+        nav ul li a:hover {
+            background-color: #4CAF50;
+        }
+
+        main {
+            margin-left: 180px; /* Adjusted margin for the reduced navbar width */
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: none;
+            transition: all 0.3s ease;
+        }
+
+        .active {
+            display: block;
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        form label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        form input, form textarea, form select, form button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        form button {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        a.delete {
+            color: #d9534f;
+            text-decoration: none;
+        }
+
+        a.delete:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            nav {
+                width: 100%;
+                position: relative;
+                height: auto;
+                padding-left: 10px;
+            }
+
+            nav h2 {
+                font-size: 1.2em;
+            }
+
+            nav ul {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                margin: 0;
+                width: 100%;
+            }
+
+            nav ul li {
+                margin: 0;
+            }
+
+            main {
+                margin-left: 0;
+                margin-top: 80px; /* Adjust to avoid overlap with navbar */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Dashboard</h1>
+    </header>
+
+    <nav>
+        <h2>Admin Menu</h2>
+        <ul>
+            <li><a href="javascript:void(0);" onclick="showSection('addProductSection')">Add Product</a></li>
+            <li><a href="javascript:void(0);" onclick="showSection('viewProductsSection')">View Products</a></li>
+            <li><a href="javascript:void(0);" onclick="showSection('addCategorySection')">Add Category</a></li>
+            <li><a href="javascript:void(0);" onclick="showSection('viewUsersSection')">View Users</a></li>
+        </ul>
+        <ul>
+            <li><a href="/logout" style="background-color: #d9534f;">Logout</a></li> <!-- Logout option -->
+        </ul>
+    </nav>
+
+    <main id="addProductSection" class="active">
+        <h2>Add Product</h2>
+        <form method="POST" action="{% url 'admin_dashboard' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" name="name" required>
+        
+            <label for="description">Product Description:</label>
+            <textarea id="description" name="description" required></textarea>
+        
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" required>
+        
+            <label for="image">Product Image:</label>
+            <input type="file" id="image" name="image" required>
+        
+            <label for="category">Category:</label>
+            <select id="category" name="category" required>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        
+            <button type="submit" name="add_product">Add Product</button>
+        </form>        
+    </main>
+
+    <main id="viewProductsSection">
+        <h2>View Products</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.description }}</td>
+                        <td>${{ product.price }}</td>
+                        <td>{{ product.category.name }}</td>
+                        <td><a href="/delete_product/{{ product.id }}" class="delete">Delete</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <main id="addCategorySection">
+        <h2>Add Category</h2>
+        <form method="POST" action="/">
+            {% csrf_token %}
+            <label for="category_name">Category Name:</label>
+            <input type="text" id="category_name" name="category_name" required>
+
+            <button type="submit" name="add_category">Add Category</button>
+        </form>
+    </main>
+
+    <main id="viewUsersSection">
+        <h2>View Users</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td><a href="/delete_user/{{ user.id }}" class="delete">Delete</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Admin Dashboard. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        function showSection(section) {
+            var sections = document.querySelectorAll('main');
+            sections.forEach(function(mainSection) {
+                mainSection.classList.remove('active');
+            });
+            document.getElementById(section).classList.add('active');
+        }
+    </script>
+</body>
+</html>
